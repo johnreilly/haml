@@ -538,8 +538,7 @@ END
 
     # This is a class method so it can be accessed from Buffer.
     def self.build_attributes(is_html, attr_wrapper, attributes = {})
-      quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
-      other_quote_char = attr_wrapper == '"' ? "'" : '"'
+
 
       result = attributes.collect do |attr, value|
         next if value.nil?
@@ -549,22 +548,37 @@ END
           next " #{attr}=#{attr_wrapper}#{attr}#{attr_wrapper}"
         elsif value == false
           next
+        elsif attr == 'data' && value.is_a?(Hash)
+          # HTML5 data-* attributes
+          data_attrs = value.collect do |data_name, data_value|
+            quoted_data_value = self.quoted_attribute_value(data_value, attr_wrapper)
+            " data-#{data_name}=#{quoted_data_value}"
+          end
+          next data_attrs.compact.sort.join
         end
 
-        value = Haml::Helpers.preserve(Haml::Helpers.escape_once(value.to_s))
-        # We want to decide whether or not to escape quotes
-        value.gsub!('&quot;', '"')
-        this_attr_wrapper = attr_wrapper
-        if value.include? attr_wrapper
-          if value.include? other_quote_char
-            value = value.gsub(attr_wrapper, quote_escape)
-          else
-            this_attr_wrapper = other_quote_char
-          end
-        end
-        " #{attr}=#{this_attr_wrapper}#{value}#{this_attr_wrapper}"
+        value = self.quoted_attribute_value(value, attr_wrapper)
+        " #{attr}=#{value}"
       end
       result.compact.sort.join
+    end
+
+    def self.quoted_attribute_value(value, attr_wrapper)
+      quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
+      other_quote_char = attr_wrapper == '"' ? "'" : '"'
+
+      value = Haml::Helpers.preserve(Haml::Helpers.escape_once(value.to_s))
+      # We want to decide whether or not to escape quotes
+      value.gsub!('&quot;', '"')
+      this_attr_wrapper = attr_wrapper
+      if value.include? attr_wrapper
+        if value.include? other_quote_char
+          value = value.gsub(attr_wrapper, quote_escape)
+        else
+          this_attr_wrapper = other_quote_char
+        end
+      end
+      "#{this_attr_wrapper}#{value}#{this_attr_wrapper}"
     end
 
     def prerender_tag(name, self_close, attributes)

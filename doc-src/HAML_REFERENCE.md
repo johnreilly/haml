@@ -428,6 +428,20 @@ or using `true` and `false`:
 
     %input(selected=true)
 
+#### HTML5 style data-* attributes
+
+HTML5 allows for adding [custom non-visible data](http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#embedding-custom-non-visible-data) to elements by prefixing the attribute name with `data-`. This can be handy when writing unobtrusive javascript in your applications.
+
+Since Ruby doesn't allow for hyphens in symbols, Haml allows you to specify an attribute named `:data` with a `Hash` value. Each of the key/value pairs in the hash will be transformed into HTML5 data-* attributes.  For example:
+
+    %a{:href=>"/posts", :data => {:author_id => 123}} Posts By Author
+
+will render as:
+
+    <a data-author_id='123' href='/posts'>Posts By Author</a>
+
+Note, this only works with `{}` style attributes, and not the HTML-style `()` attributes.
+
 ### Class and ID: `.` and `#`
 
 The period and pound sign are borrowed from CSS.

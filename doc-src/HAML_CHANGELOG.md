@@ -66,6 +66,13 @@ won't do any indentation of their arguments.
   Their `#to_s` method will be called to convert them to strings.
   Previously, this only worked for attributes other than `class`.
 
+### HTML5 data-* attributes
+Creating an attribute named `:data` with a `Hash` will generate [HTML5 data-* attributes](http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#embedding-custom-non-visible-data). For example:
+
+    %div{:data => {author_id => 123, :post_id => 234}} #=> <div data-author_id='123' data-post_id='234'></div>
+
+(thanks [John Reilly](http://twitter.com/johnreilly))
+
 ### More Powerful `:autoclose` Option
 
 The {file:HAML_REFERENCE.md#attributes_option `:attributes`} option
